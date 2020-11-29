@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${env:HOME}/.local/lib/python3.5/site-packages/tensorflow/include",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_GLIBCXX_USE_CXX11_ABI=0"
+            ],
+            "cStandard": "c99",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
