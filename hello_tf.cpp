@@ -1,110 +1,22 @@
 //https://github.com/tensorflow/tensorflow/blob/master/tensorflow/cc/framework/gradients_test.cc
 //https://gist.github.com/asimshankar/7c9f8a9b04323e93bb217109da8c7ad2
-//https://gist.github.com/asimshankar/7c9f8a9b04323e93bb217109da8c7ad2
+//https://gist.github.com/asimshankar/5c96acd1280507940bad9083370fe8dc
 
 #include <vector>
-#include <tensorflow/cc/framework/scope.h>
-#include <tensorflow/cc/framework/gradients.h>
-#include <tensorflow/cc/ops/standard_ops.h>
-#include <tensorflow/cc/ops/math_ops.h>
-#include <tensorflow/core/framework/graph.pb.h>
-#include <tensorflow/core/framework/tensor_shape.h>
 
+#include <tensorflow/core/framework/graph.pb.h>
 #include <tensorflow/core/public/session.h>
 #include <tensorflow/core/framework/graph_def_util.h>
-//#include <tensorflow/core/platform/status.h>
 
-#include <tensorflow/c/c_api.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <sys/stat.h>
 
-// Example:
-//      ^             ^
-//    dy|           dx|        (MatMul Gradient Graph)
-//      |             |
-//   MatMul_1      MatMul_2
-//   ^   ^          ^    ^
-//   |   |----------|    |
-//   |        ^          |
-//   |      dz|          |
-//   |        |          |
-//   |     Const_3       |
-//   |                   |
-//   |        ^          |
-//   |       z|          |     (MatMul Forward Graph)
-//   |        |          |
-//   |      MatMul_0     |
-//   |     /        \    |
-//   |    ^          ^   |
-//   |    |          |   |
-//   |---x|         y|---|
-//        |          |
-//        |          |
-//      Const_0   Const_1
-//
 
 int main(int argc, char **argv)
 {
-#if 0
-  tensorflow::GraphDef gdef;
-  {
-    tensorflow::Status _status;
-
-    tensorflow::Scope scope = tensorflow::Scope::NewRootScope();
-
-    tensorflow::PartialTensorShape x_out;
-    tensorflow::gtl::ArraySlice<tensorflow::int64> x_shape({1});
-    tensorflow::TensorShapeUtils::MakeShape(x_shape, &x_out);
-    tensorflow::ops::Placeholder::Attrs x_attrs;
-    x_attrs.Shape(x_out);
-    auto x = tensorflow::ops::Placeholder(scope, tensorflow::DT_FLOAT, x_attrs);
-    x.node()->set_name("input");
-
-    tensorflow::PartialTensorShape y_out;
-    tensorflow::gtl::ArraySlice<tensorflow::int64> y_shape({1});
-    tensorflow::TensorShapeUtils::MakeShape(y_shape, &y_out);
-    tensorflow::ops::Placeholder::Attrs y_attrs;
-    y_attrs.Shape(y_out);
-    auto y = tensorflow::ops::Placeholder(scope, tensorflow::DT_FLOAT, y_attrs);
-    y.node()->set_name("target");
-
-    //Trivial linear model
-    auto y_ = tensorflow::ops::Identity(scope,
-                                        tensorflow::ops::DenseBincount(
-                                            scope,
-                                            x,
-                                            tensorflow::ops::Const(scope, {1.0}),
-                                            tensorflow::ops::Const(scope, {1.0})));
-    assert(tensorflow::Status::OK() == _status);                                       
-    //y_.node()->set_name("output");
-
-    //Optimize loss
-    auto loss = tensorflow::ops::ReduceMean(scope,
-                                            tensorflow::ops::Square(
-                                                scope,
-                                                tensorflow::ops::Sub(scope, y_, y)),
-                                            tensorflow::ops::Const(scope, {1}));
-
-    // tf.train.GradientDescentOptimizer
-    // Call AddSymbolicGradients.
-    std::vector<tensorflow::Output> train_op;
-    _status = tensorflow::AddSymbolicGradients(scope, {loss}, {x, y}, &train_op);
-    assert(tensorflow::Status::OK() == _status);
-    CHECK_NOTNULL(train_op[0].node());
-
-    //
-    _status = scope.ToGraphDef(&gdef);
-    assert(tensorflow::Status::OK() == _status);
-  }
-
-  tensorflow::WriteBinaryProto(tensorflow::Env::Default(), "graph.pb", gdef);
-#endif
-
-  //--------------------------------------------------------------
-
   // Example of training the model created above.
 
+  char const *checkpoint_dir = "./checkpoints";
   char const *checkpoint_prefix = "./checkpoints/checkpoint";
 
   tensorflow::Status _status;
@@ -123,7 +35,7 @@ int main(int argc, char **argv)
   bool restore;
   {
     struct stat _buf;
-    int _res = stat(checkpoint_prefix, &_buf);
+    int _res = stat(checkpoint_dir, &_buf);
     restore = (0 == _res);
   }
 
@@ -247,47 +159,6 @@ int main(int argc, char **argv)
         NULL);
     assert(tensorflow::Status::OK() == _status);
   }
-
-#if 0
-
-  TF_Status *status = TF_NewStatus();
-
-  // Import the graph.
-  TF_Graph *graph;
-  {
-    TF_Buffer *graph_def;
-    {
-      int fd = open("graph.pb", 0);
-      assert(fd != -1);
-
-      char data[4096];
-      ssize_t nread = read(fd, data, 4096);
-      assert(nread != -1 && nread < 4096);
-
-      graph_def = TF_NewBufferFromString(data, nread);
-    }
-    TF_ImportGraphDefOptions *opts = TF_NewImportGraphDefOptions();
-    graph = TF_NewGraph();
-     TF_GraphImportGraphDef(graph, graph_def, opts, status);
-    TF_DeleteImportGraphDefOptions(opts);
-    TF_DeleteBuffer(graph_def);
-    assert(TF_OK == TF_GetCode(status));
-  }
-
-  // Create the session.
-  TF_Session *session;
-  {
-    TF_SessionOptions *opts = TF_NewSessionOptions();
-    session = TF_NewSession(graph, opts, status);
-    TF_DeleteSessionOptions(opts);
-    assert(TF_OK == TF_GetCode(status));
-  }
-
-  TF_Output input;
-  TF_Output target;
-  TF_Output output;
-  TF_GraphOperationByName(graph, "input");
-#endif
 
   return 0;
 }

@@ -2,8 +2,9 @@ hello_tf : hello_tf.o
 	g++ -pie hello_tf.o -g -O0 \
 	"${HOME}/.local/lib/python3.5/site-packages/tensorflow/python/_pywrap_tensorflow_internal.so" \
 	"${HOME}/.local/lib/python3.5/site-packages/tensorflow/libtensorflow_framework.so.2" \
-	"${HOME}/.local/lib/python3.5/site-packages/_solib_k8/_U@mkl_Ulinux_S_S_Cmkl_Ulibs_Ulinux___Uexternal_Smkl_Ulinux_Slib/libmklml_intel.so" \
-	"${HOME}/.local/lib/python3.5/site-packages/_solib_k8/_U@mkl_Ulinux_S_S_Cmkl_Ulibs_Ulinux___Uexternal_Smkl_Ulinux_Slib/libiomp5.so" \
+	-L"${HOME}/.local/lib/python3.5/site-packages/_solib_k8/_U@mkl_Ulinux_S_S_Cmkl_Ulibs_Ulinux___Uexternal_Smkl_Ulinux_Slib" \
+	-lmklml_intel \
+	-liomp5 \
 	-lpython3.5m \
 	-Wl,--enable-new-dtags \
 	-Wl,-rpath ${HOME}/.local/lib/python3.5/site-packages/tensorflow/python \
