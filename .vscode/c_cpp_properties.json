@@ -3,12 +3,15 @@
         {
             "name": "Linux",
             "includePath": [
+                "/usr/include",
+                "/usr/include/c++/5",
                 "${env:HOME}/.local/lib/python3.5/site-packages/tensorflow/include",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}"
             ],
             "defines": [
                 "_GLIBCXX_USE_CXX11_ABI=0"
             ],
+            "compileCommands": "/usr/bin/g++",
             "cStandard": "c99",
             "cppStandard": "c++11",
             "intelliSenseMode": "gcc-x64"
