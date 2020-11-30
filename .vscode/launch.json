@@ -23,6 +23,13 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "(python) Launch",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/model.py",
+            "console": "integratedTerminal"
         }
     ]
 }
