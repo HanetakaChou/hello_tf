@@ -16,6 +16,6 @@ hello_tf.o : hello_tf.cpp
 	g++ -c hello_tf.cpp \
 	-fPIE -fPIC -g -O0 \
 	-std=c++11 -D_GLIBCXX_USE_CXX11_ABI=0 \
-	-I "${LIB_DIR}/python3.5/site-packages/tensorflow/include" \
+	-I "${LIB_DIR}/python3.5/dist-packages/tensorflow/include" \
 	-I "${MY_DIR}" \
 	-o hello_tf.o  
